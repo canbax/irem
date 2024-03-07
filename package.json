@@ -1,0 +1,68 @@
+{
+  "name": "your-library",
+  "version": "2.0.0",
+  "description": "A template for a javascript library",
+  "main": "dist/your-library.cjs.js",
+  "module": "dist/your-library.esm.js",
+  "browser": "dist/your-library.umd.js",
+  "types": "dist/main.d.ts",
+  "type": "module",
+  "engines": {
+    "node": "20.x",
+    "npm": "10.x"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/node": "^20.11.24",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-config-standard-with-typescript": "^43.0.1",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-n": "^16.6.2",
+    "eslint-plugin-promise": "^6.1.1",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.2.5",
+    "rollup": "^4.12.0",
+    "ts-node": "^10.9.2",
+    "tslib": "^2.6.2",
+    "typescript": "^5.4.2",
+    "typescript-eslint": "^7.1.1",
+    "vitest": "^1.3.1"
+  },
+  "scripts": {
+    "build": "rollup -c --environment NODE_ENV:production",
+    "build-dev": "rollup -c",
+    "dev": "rollup -c -w",
+    "test": "vitest",
+    "prepare": "husky",
+    "format": "prettier --write .",
+    "lint": "eslint  . --max-warnings=0 ",
+    "lint-fix": "eslint . --max-warnings=0  --fix",
+    "all": "npm run build && npm run build-dev && npm run format && npm run lint && npm run lint-fix"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/canbax/your-library.git"
+  },
+  "keywords": [],
+  "author": "Yusuf Sait Canbaz",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/canbax/your-library/issues"
+  },
+  "homepage": "https://github.com/canbax/your-library#readme",
+  "lint-staged": {
+    "*.{ts,js}": [
+      "prettier --write",
+      "eslint --max-warnings=0"
+    ]
+  }
+}
