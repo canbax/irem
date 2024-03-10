@@ -61,8 +61,8 @@ export async function getAllRegionsOfCountry(
 
 async function readJSON(
   language?: SupportedLanguage,
-  nonEnglishDataPath: string = "./src/data/",
-  englishDataPath: string = "",
+  nonEnglishDataPath: string = "./data/",
+  englishDataPath: string = "./data/",
 ): Promise<Record<CountryCode, CountryData>> {
   const fileToRead = isSupportedNonEnglishLanguage(language)
     ? `${nonEnglishDataPath}GPS-data-${language}.json`
