@@ -1,10 +1,10 @@
 {
-  "name": "your-library",
-  "version": "2.0.0",
-  "description": "A template for a javascript library",
-  "main": "dist/your-library.cjs.js",
-  "module": "dist/your-library.esm.js",
-  "browser": "dist/your-library.umd.js",
+  "name": "irem",
+  "version": "1.0.0-SNAPSHOT",
+  "description": "Multi-lingual country, region, city, and GPS data of whole world in hierarchical structure.",
+  "main": "dist/irem.cjs.js",
+  "module": "dist/irem.esm.js",
+  "browser": "dist/irem.umd.js",
   "types": "dist/main.d.ts",
   "type": "module",
   "engines": {
@@ -50,15 +50,46 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/canbax/your-library.git"
+    "url": "git+https://github.com/canbax/irem.git"
   },
-  "keywords": [],
+  "keywords": [
+    "country",
+    "city",
+    "region",
+    "state",
+    "multi-lingual",
+    "multilingual",
+    "multi-language",
+    "language",
+    "administrative",
+    "division",
+    "town",
+    "human",
+    "settlement",
+    "locality",
+    "county",
+    "urban",
+    "village",
+    "cities",
+    "countries",
+    "regions",
+    "states",
+    "world",
+    "whole",
+    "world",
+    "human-geographic",
+    "territorial",
+    "entity",
+    "human",
+    "geography",
+    "hierarchy"
+  ],
   "author": "Yusuf Sait Canbaz",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/canbax/your-library/issues"
+    "url": "https://github.com/canbax/irem/issues"
   },
-  "homepage": "https://github.com/canbax/your-library#readme",
+  "homepage": "https://github.com/canbax/irem#readme",
   "lint-staged": {
     "*.{ts,js}": [
       "prettier --write",

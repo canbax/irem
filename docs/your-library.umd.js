@@ -5,9 +5,8 @@
       ? define(["exports"], n)
       : n(
           ((e =
-            "undefined" != typeof globalThis
-              ? globalThis
-              : e || self).yourLibrary = {}),
+            "undefined" != typeof globalThis ? globalThis : e || self).irem =
+            {}),
         );
 })(this, function (e) {
   "use strict";

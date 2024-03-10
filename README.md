@@ -1,27 +1,27 @@
-# Your Library Name
+# irem
 
-Your library description and a gif or image might be good below
+Multi-lingual country, region, city, and GPS data of whole world in hierarchical structure.
 
 ## Usage
 
-### Use [npm](https://www.npmjs.com/package/your-library)
+### Use [npm](https://www.npmjs.com/package/irem)
 
-Run command `npm i your-library`
+Run command `npm i irem`
 
 ### import ESM module
 
-`import { yourLibFunction } from 'your-library';`
+`import { yourLibFunction } from 'irem';`
 
 ### import CommonJS module
 
 ```
-const lib = require("your-library");
+const lib = require("irem");
 console.log(lib.yourLibFunction(1, 2);
 ```
 
 ### import UMD module
 
-Add `<script src="https://unpkg.com/your-library/dist/your-library.umd.js"></script>` to your HTML file.
+Add `<script src="https://unpkg.com/irem/dist/irem.umd.js"></script>` to your HTML file.
 
 Then you can call API functions like `lib.yourLibFunction(1, 2)`
 

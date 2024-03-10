@@ -9,8 +9,8 @@ export default [
   {
     input: "src/main.ts",
     output: {
-      name: "yourLibrary",
-      file: "dist/your-library.umd.js",
+      name: "irem",
+      file: "dist/irem.umd.js",
       format: "umd",
     },
     plugins: [
@@ -34,8 +34,8 @@ export default [
       isProduction && terser(),
     ],
     output: [
-      { file: "dist/your-library.cjs.js", format: "cjs" },
-      { file: "dist/your-library.esm.js", format: "es" },
+      { file: "dist/irem.cjs.js", format: "cjs" },
+      { file: "dist/irem.esm.js", format: "es" },
     ],
   },
 ];
