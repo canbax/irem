@@ -296,4 +296,5 @@ export interface SimpleCountry extends SimplePlace {
 export type SimplePlace = {
   englishName: string;
   name: string;
+  gps: [number, number];
 };

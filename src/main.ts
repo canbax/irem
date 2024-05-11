@@ -6,9 +6,12 @@ import {
   SupportedLanguage,
 } from "./types";
 import { readFileSync } from "fs";
-import { isSupportedNonEnglishLanguage } from "./util";
+import { isSupportedNonEnglishLanguage, sortPlaces } from "./util";
 
-export function getAllCountries(language?: SupportedLanguage): SimpleCountry[] {
+export function getAllCountries(
+  language?: SupportedLanguage,
+  baseLocation?: [number, number],
+): SimpleCountry[] {
   const data = readJSON(language);
 
   const countries: SimpleCountry[] = [];
@@ -17,14 +20,16 @@ export function getAllCountries(language?: SupportedLanguage): SimpleCountry[] {
       code: code,
       englishName: data[code].n,
       name: data[code].t,
+      gps: data[code].g,
     });
   }
-  return countries;
+  return sortPlaces(baseLocation, countries);
 }
 
 export function getAllRegionsOfCountry(
   countryCode: CountryCode,
   language?: SupportedLanguage,
+  baseLocation?: [number, number],
 ): SimplePlace[] {
   const data = readJSON(language);
   const regions: SimplePlace[] = [];
@@ -32,15 +37,17 @@ export function getAllRegionsOfCountry(
     regions.push({
       englishName: regionNameInEnglish,
       name: data[countryCode][">"][regionNameInEnglish].t,
+      gps: data[countryCode][">"][regionNameInEnglish].g,
     });
   }
-  return regions;
+  return sortPlaces(baseLocation, regions);
 }
 
 export function getAllCities(
   countryCode: CountryCode,
   regionNameInEnglish: string,
   language?: SupportedLanguage,
+  baseLocation?: [number, number],
 ): SimplePlace[] {
   const data = readJSON(language);
 
@@ -49,9 +56,10 @@ export function getAllCities(
     cities.push({
       englishName: cityName,
       name: data[countryCode][">"][regionNameInEnglish][">"][cityName].t,
+      gps: data[countryCode][">"][regionNameInEnglish].g,
     });
   }
-  return cities;
+  return sortPlaces(baseLocation, cities);
 }
 
 function readJSON(
