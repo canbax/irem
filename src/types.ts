@@ -5,11 +5,13 @@ export type CityNameInEnglish = string;
 export type CountryData = {
   n: CountryNameInEnglish; // name in English
   t: string; // translation in the current language
+  g: [number, number]; // GPS coordinates
   ">": Record<RegionNameInEnglish, RegionData>; //
 };
 
 export type RegionData = {
   t: string; // translation in the current language
+  g: [number, number]; // GPS coordinates
   ">": Record<CityNameInEnglish, CityData>;
 };
 export type CityData = {

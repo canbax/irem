@@ -9,10 +9,7 @@ import { readFileSync } from "fs";
 import { isSupportedNonEnglishLanguage } from "./util";
 
 export function getAllCountries(language?: SupportedLanguage): SimpleCountry[] {
-  const t1 = new Date().getTime();
   const data = readJSON(language);
-  const t2 = new Date().getTime();
-  console.log((t2 - t1) / 1000, " seconds passed ");
 
   const countries: SimpleCountry[] = [];
   for (const code in data) {
@@ -22,7 +19,6 @@ export function getAllCountries(language?: SupportedLanguage): SimpleCountry[] {
       name: data[code].t,
     });
   }
-  console.log("typeof ", typeof countries);
   return countries;
 }
 
