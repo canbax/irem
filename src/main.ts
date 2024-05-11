@@ -8,11 +8,9 @@ import {
 import { readFileSync } from "fs";
 import { isSupportedNonEnglishLanguage } from "./util";
 
-export async function getAllCountries(
-  language?: SupportedLanguage,
-): Promise<SimpleCountry[]> {
+export function getAllCountries(language?: SupportedLanguage): SimpleCountry[] {
   const t1 = new Date().getTime();
-  const data = await readJSON(language);
+  const data = readJSON(language);
   const t2 = new Date().getTime();
   console.log((t2 - t1) / 1000, " seconds passed ");
 
@@ -28,11 +26,11 @@ export async function getAllCountries(
   return countries;
 }
 
-export async function getAllRegionsOfCountry(
+export function getAllRegionsOfCountry(
   countryCode: CountryCode,
   language?: SupportedLanguage,
-): Promise<SimplePlace[]> {
-  const data = await readJSON(language);
+): SimplePlace[] {
+  const data = readJSON(language);
   const regions: SimplePlace[] = [];
   for (const regionNameInEnglish in data[countryCode][">"]) {
     regions.push({
@@ -43,27 +41,28 @@ export async function getAllRegionsOfCountry(
   return regions;
 }
 
-// export async function getAllCities(
-//   countryCode: CountryCode,
-//   language?: SupportedLanguage,
-// ): SimplePlace[] {
-//   const data = await readJSON(language);
+export function getAllCities(
+  countryCode: CountryCode,
+  regionNameInEnglish: string,
+  language?: SupportedLanguage,
+): SimplePlace[] {
+  const data = readJSON(language);
 
-//   const regions: SimplePlace[] = [];
-//   for (const regionNameInEnglish in data[countryCode][">"]) {
-//     regions.push({
-//       englishName: regionNameInEnglish,
-//       name: data[countryCode][">"][regionNameInEnglish].t,
-//     });
-//   }
-//   return regions;
-// }
+  const cities: SimplePlace[] = [];
+  for (const cityName in data[countryCode][">"][regionNameInEnglish][">"]) {
+    cities.push({
+      englishName: cityName,
+      name: data[countryCode][">"][regionNameInEnglish][">"][cityName].t,
+    });
+  }
+  return cities;
+}
 
-async function readJSON(
+function readJSON(
   language?: SupportedLanguage,
   nonEnglishDataPath: string = "./data/",
   englishDataPath: string = "./data/",
-): Promise<Record<CountryCode, CountryData>> {
+): Record<CountryCode, CountryData> {
   const fileToRead = isSupportedNonEnglishLanguage(language)
     ? `${nonEnglishDataPath}GPS-data-${language}.json`
     : `${englishDataPath}GPS-data.json`;
