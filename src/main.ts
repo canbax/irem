@@ -8,6 +8,12 @@ import {
 import { readFileSync } from "fs";
 import { isSupportedNonEnglishLanguage, sortPlaces } from "./util";
 
+/** return a list of countries in given language. The list is sorted by distance from `baseLocation`
+ * if `language` undefined, results will be returned in English. If `baseLocation` is undefined, the returned list will be sorted alphabetically
+ * @param {?SupportedLanguage} [language]
+ * @param {?[number, number]} [baseLocation]
+ * @returns {SimpleCountry[]}
+ */
 export function getAllCountries(
   language?: SupportedLanguage,
   baseLocation?: [number, number],
@@ -26,6 +32,14 @@ export function getAllCountries(
   return sortPlaces(baseLocation, countries);
 }
 
+/**
+ * return a list of regions/states/cities in given language. The list is sorted by distance from `baseLocation`
+ * if `language` undefined, results will be returned in English. If `baseLocation` is undefined, the returned list will be sorted alphabetically
+ * @param {CountryCode} countryCode
+ * @param {?SupportedLanguage} [language]
+ * @param {?[number, number]} [baseLocation]
+ * @returns {SimplePlace[]}
+ */
 export function getAllRegionsOfCountry(
   countryCode: CountryCode,
   language?: SupportedLanguage,
@@ -43,6 +57,16 @@ export function getAllRegionsOfCountry(
   return sortPlaces(baseLocation, regions);
 }
 
+/**
+* return a list of regions/cities/districts in given language. The list is sorted by distance from `baseLocation`
+ * if `language` undefined, results will be returned in English. If `baseLocation` is undefined, the returned list will be sorted alphabetically
+
+ * @param {CountryCode} countryCode
+ * @param {string} regionNameInEnglish
+ * @param {?SupportedLanguage} [language]
+ * @param {?[number, number]} [baseLocation]
+ * @returns {SimplePlace[]}
+ */
 export function getAllCities(
   countryCode: CountryCode,
   regionNameInEnglish: string,

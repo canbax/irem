@@ -1,11 +1,9 @@
 {
   "name": "irem",
-  "version": "1.0.1-SNAPSHOT",
+  "version": "1.0.2-SNAPSHOT",
   "description": "Multi-lingual country, region, city, and GPS data of whole world in hierarchical structure.",
-  "main": "dist/irem.cjs.js",
   "module": "dist/irem.esm.js",
-  "browser": "dist/irem.umd.js",
-  "types": "dist/main.d.ts",
+  "types": "dist/src/main.d.ts",
   "type": "module",
   "engines": {
     "node": "20.x",
