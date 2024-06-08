@@ -1,10 +1,11 @@
-import { SimplePlace, SupportedLanguage } from "./types";
+import { SimplePlace, SupportedLanguage } from "./types.js";
 
-export const supportedNonEnglishLanguages: SupportedLanguage[] = [
+export const supportedLanguages: SupportedLanguage[] = [
   "ar",
   "az",
   "de",
   "es",
+  "en",
   "fa",
   "fr",
   "id",
@@ -18,23 +19,9 @@ export const supportedNonEnglishLanguages: SupportedLanguage[] = [
   "zh",
 ] as const;
 
-export function isSupportedNonEnglishLanguage(language?: SupportedLanguage) {
+export function isSupportedLanguage(language?: SupportedLanguage) {
   if (!language) return false;
-  return supportedNonEnglishLanguages.includes(language.toLowerCase());
-}
-
-export function sortPlacesByDistance<T extends SimplePlace>(
-  baseLocation: [number, number],
-  places: T[],
-) {
-  const dist2 = (a: [number, number], b: [number, number]) => {
-    return Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2));
-  };
-  return places.sort((a: SimplePlace, b: SimplePlace) => {
-    const distA = dist2(baseLocation, a.gps);
-    const distB = dist2(baseLocation, b.gps);
-    return distA - distB;
-  });
+  return supportedLanguages.includes(language.toLowerCase());
 }
 
 /**

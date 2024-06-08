@@ -276,6 +276,7 @@ export type SupportedLanguage =
   | "az"
   | "de"
   | "es"
+  | "en"
   | "fa"
   | "fr"
   | "id"

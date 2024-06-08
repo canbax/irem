@@ -1,55 +1,47 @@
 {
   "name": "irem",
   "version": "1.0.2-beta",
-  "description": "Multi-lingual country, region, city, and GPS data of whole world in hierarchical structure.",
-  "module": "dist/irem.esm.js",
-  "types": "dist/src/main.d.ts",
+  "description": "Multi-lingual cities database of whole world.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/canbax/irem.git"
+  },
+  "funding": "https://github.com/canbax/irem?sponsor=1",
+  "author": {
+    "name": "Yusuf Sait Canbaz",
+    "url": "https://github.com/canbax"
+  },
   "type": "module",
+  "exports": "./dist/main.js",
+  "types": "./dist/main.d.ts",
+  "sideEffects": false,
   "engines": {
-    "node": "20.x",
-    "npm": "10.x"
+    "node": ">=20"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^25.0.7",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^11.1.6",
     "@types/node": "^20.11.24",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "eslint": "^8.57.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-config-standard-with-typescript": "^43.0.1",
-    "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-n": "^16.6.2",
-    "eslint-plugin-promise": "^6.1.1",
     "husky": "^9.0.11",
+    "istanbul-badges-readme": "^1.9.0",
     "lint-staged": "^15.2.2",
-    "prettier": "^3.2.5",
-    "rollup": "^4.12.0",
+    "prettier": "^3.3.1",
     "ts-node": "^10.9.2",
     "tslib": "^2.6.2",
-    "typescript": "^5.4.2",
-    "typescript-eslint": "^7.1.1",
-    "vitest": "^1.3.1"
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
   },
   "scripts": {
-    "build": "rollup -c --environment NODE_ENV:production",
-    "build-dev": "rollup -c",
-    "dev": "rollup -c -w",
+    "build": "del dist && tsc",
     "test": "vitest",
     "prepare": "husky",
     "format": "prettier --write .",
-    "lint": "eslint  . --max-warnings=0 ",
-    "lint-fix": "eslint . --max-warnings=0  --fix",
+    "make-badges": "istanbul-badges-readme",
+    "coverage": "vitest run --coverage",
     "all": "npm run build && npm run build-dev && npm run format && npm run lint && npm run lint-fix"
   },
   "files": [
     "dist"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/canbax/irem.git"
-  },
   "keywords": [
     "country",
     "city",
@@ -82,16 +74,13 @@
     "geography",
     "hierarchy"
   ],
-  "author": "Yusuf Sait Canbaz",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/canbax/irem/issues"
   },
   "homepage": "https://github.com/canbax/irem#readme",
   "lint-staged": {
-    "*.{ts,js}": [
-      "prettier --write",
-      "eslint --max-warnings=0"
+    "*.{ts}": [
+      "prettier --write"
     ]
   }
 }
