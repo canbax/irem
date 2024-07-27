@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { normalizeString, readLineFromTSV } from "../src/util";
+import { normalizeString, readLineFromTSV, TSV_DB_FILE } from "../src/util";
 
 describe("util functions", () => {
   describe("normalizeString", () => {
@@ -21,7 +21,7 @@ describe("util functions", () => {
     ])(
       "should read $expectedName from line number: $lineNumber",
       async ({ lineNumber, expectedName }) => {
-        const lineAsString = await readLineFromTSV("data/db.tsv", lineNumber);
+        const lineAsString = await readLineFromTSV(TSV_DB_FILE, lineNumber);
         expect(lineAsString).toBeDefined();
         if (lineAsString) {
           const [name, , , , ,] = lineAsString?.split("\t");
@@ -29,5 +29,14 @@ describe("util functions", () => {
         }
       },
     );
+
+    it("should 100 lines in maximum 50 ms", async () => {
+      const t1 = new Date().getTime();
+      for (let i = 347551; i <= 347651; i++) {
+        await readLineFromTSV(TSV_DB_FILE, i);
+      }
+      const t2 = new Date().getTime();
+      expect(t2 - t1).toBeLessThan(50);
+    });
   });
 });

@@ -1,4 +1,10 @@
-import { normalizeString, readGzippedJSON, writeGzippedJSON } from "./util.js";
+import {
+  normalizeString,
+  readGzippedJSON,
+  TRIE_FILE,
+  TSV_DB_FILE,
+  writeGzippedJSON,
+} from "./util.js";
 import { readFileSync, writeFileSync } from "fs";
 
 interface EncodedTrieNode {
@@ -138,7 +144,7 @@ export class Trie {
   }
 
   static async convertDataToGzippedTrieJSON() {
-    const trie = Trie.buildTrieFromTSV("data/db.tsv");
-    await writeGzippedJSON("data/trie.gzip", Trie.trieToJson(trie));
+    const trie = Trie.buildTrieFromTSV(TSV_DB_FILE);
+    await writeGzippedJSON(TRIE_FILE, Trie.trieToJson(trie));
   }
 }

@@ -27,6 +27,9 @@ export function isSupportedLanguage(language?: SupportedLanguage) {
   return supportedLanguages.includes(language.toLowerCase());
 }
 
+export const TRIE_FILE = "data/trie.gz";
+export const TSV_DB_FILE = "data/db.tsv";
+
 /**
  * sorts places according to distance from baseLocation or sorts alphabetically
  * @template {SimplePlace} T
@@ -91,6 +94,24 @@ export function normalizeString(str: string) {
     .replace(/[ø]/g, "o")
     .replace(/æ/g, "ae")
     .replace(/œ/g, "oe");
+}
+
+export async function readGzippedFile(filePath: string) {
+  try {
+    // Promisify the gunzip function
+    const gunzipAsync = promisify(gunzip);
+
+    // Read the gzipped file
+    const buffer = await readFile(filePath);
+
+    // Decompress the gzipped buffer
+    const decompressedBuffer = await gunzipAsync(buffer);
+
+    // Convert the buffer to a string
+    return decompressedBuffer.toString("utf8");
+  } catch (err) {
+    console.error("Error:", err);
+  }
 }
 
 export async function readGzippedJSON(filePath: string) {
