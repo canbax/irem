@@ -155,33 +155,37 @@ export async function writeGzippedJSON(
   }
 }
 
-export async function readLineFromTSV(
+export async function readLinesFromTSV(
   tsvFilePath: string,
-  lineNumber: number,
+  lineNumbers: number[],
   indexFilePath = "data/index.bin",
-): Promise<string | undefined> {
+): Promise<string[]> {
+  const linesRead: string[] = [];
   // Open both files
   const tsvFileHandle = await open(tsvFilePath, "r");
   const indexFileHandle = await open(indexFilePath, "r");
 
-  // Read the offset from the index file
-  const buffer = Buffer.alloc(8);
-  await indexFileHandle.read(buffer, 0, 8, lineNumber * 8);
-  const offset = buffer.readBigInt64LE();
+  for (const lineNumber of lineNumbers) {
+    // Read the offset from the index file
+    const buffer = Buffer.alloc(8);
+    await indexFileHandle.read(buffer, 0, 8, lineNumber * 8);
+    const offset = buffer.readBigInt64LE();
 
-  // Read the line from the TSV file
-  const lineBuffer = Buffer.alloc(1024); // Assume max line length of 1024 bytes
-  const { bytesRead } = await tsvFileHandle.read(
-    lineBuffer,
-    0,
-    1024,
-    Number(offset),
-  );
-  const line = lineBuffer.toString("utf8", 0, bytesRead).split("\n")[0];
+    // Read the line from the TSV file
+    const lineBuffer = Buffer.alloc(1024); // Assume max line length of 1024 bytes
+    const { bytesRead } = await tsvFileHandle.read(
+      lineBuffer,
+      0,
+      1024,
+      Number(offset),
+    );
+    const current = lineBuffer.toString("utf8", 0, bytesRead).split("\n")[0];
+    if (current) linesRead.push(current);
+  }
 
   // Close file handles
   await tsvFileHandle.close();
   await indexFileHandle.close();
 
-  return line;
+  return linesRead;
 }

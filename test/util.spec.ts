@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { normalizeString, readLineFromTSV, TSV_DB_FILE } from "../src/util";
+import { normalizeString, readLinesFromTSV, TSV_DB_FILE } from "../src/util";
 
 describe("util functions", () => {
   describe("normalizeString", () => {
@@ -12,31 +12,34 @@ describe("util functions", () => {
     });
   });
 
-  describe("readLineFromTSV", async () => {
-    it.each([
-      { lineNumber: 1, expectedName: "!Kheis Local Municipality" },
-      { lineNumber: 347651, expectedName: "천리마구역" },
-      { lineNumber: 322442, expectedName: "İstanbul" },
-      { lineNumber: 322444, expectedName: "İyidere" },
-    ])(
-      "should read $expectedName from line number: $lineNumber",
-      async ({ lineNumber, expectedName }) => {
-        const lineAsString = await readLineFromTSV(TSV_DB_FILE, lineNumber);
-        expect(lineAsString).toBeDefined();
-        if (lineAsString) {
-          const [name, , , , ,] = lineAsString?.split("\t");
-          expect(name).toBe(expectedName);
-        }
-      },
-    );
-
-    it("should 100 lines in maximum 50 ms", async () => {
-      const t1 = new Date().getTime();
-      for (let i = 347551; i <= 347651; i++) {
-        await readLineFromTSV(TSV_DB_FILE, i);
+  describe("readLinesFromTSV", async () => {
+    it("should read lines [1, 347651, 322442, 322444] correctly", async () => {
+      const linesRead = await readLinesFromTSV(
+        TSV_DB_FILE,
+        [1, 347651, 322442, 322444],
+      );
+      expect(linesRead.length).toBe(4);
+      const names: string[] = [];
+      for (const line of linesRead) {
+        const [name, , , , ,] = line?.split("\t");
+        names.push(name);
       }
-      const t2 = new Date().getTime();
-      expect(t2 - t1).toBeLessThan(50);
+      expect(names).toStrictEqual([
+        "!Kheis Local Municipality",
+        "천리마구역",
+        "İstanbul",
+        "İyidere",
+      ]);
+    });
+
+    it("should 1000 lines in maximum 50 ms", async () => {
+      function createArray(n: number) {
+        return Array.from({ length: n }, (v, k) => k + 1);
+      }
+      const t1 = new Date().getTime();
+      await readLinesFromTSV(TSV_DB_FILE, createArray(1000));
+      const deltaTime = new Date().getTime() - t1;
+      expect(deltaTime).toBeLessThan(50);
     });
   });
 });
