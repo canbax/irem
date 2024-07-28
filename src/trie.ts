@@ -3,9 +3,10 @@ import {
   readGzippedJSON,
   TRIE_FILE,
   TSV_DB_FILE,
+  uniteSets,
   writeGzippedJSON,
 } from "./util.js";
-import { readFileSync, writeFileSync } from "fs";
+import { readFileSync } from "fs";
 
 interface EncodedTrieNode {
   c?: Record<string, EncodedTrieNode>;
@@ -68,6 +69,64 @@ export class Trie {
 
     // Prefix exist in the Trie
     return currentNode;
+  }
+
+  findLastNodeMatch(query: string) {
+    // Initialize the currentNode pointer with the root node
+    let currentNode = this.root;
+
+    let i = 0;
+    // Iterate across the length of the string
+    for (i = 0; i < query.length; i++) {
+      const c = query[i] as string;
+      // Check if the node exist for the current character in the Trie.
+      if (!currentNode.children[c]) {
+        // Given word as a prefix does not exist in Trie
+        return { currentNode, i };
+      }
+
+      // Move the currentNode pointer to the already existing node for current character.
+      currentNode = currentNode.children[c];
+    }
+
+    // Prefix exist in the Trie
+    return { currentNode, i };
+  }
+
+  autocomplete(query: string, maxResultCount = 10) {
+    const resultSet = new Set<number>();
+
+    const { i, currentNode } = this.findLastNodeMatch(query);
+    this.collectLineNumbersWithBFS(
+      currentNode,
+      query.length,
+      i,
+      resultSet,
+      maxResultCount,
+    );
+    return resultSet;
+  }
+
+  collectLineNumbersWithBFS(
+    currentNode: TrieNode,
+    querySize: number,
+    queryIndex: number,
+    resultSet: Set<number>,
+    maxResultCount = 10,
+  ) {
+    if (resultSet.size > maxResultCount) return;
+    uniteSets(resultSet, currentNode.lineNumbers);
+    if (queryIndex >= querySize) return;
+
+    for (const [_, childNode] of Object.entries(currentNode.children)) {
+      this.collectLineNumbersWithBFS(
+        childNode,
+        querySize,
+        queryIndex++,
+        resultSet,
+        maxResultCount,
+      );
+    }
   }
 
   searchPrefix(query: string): number[] | null {

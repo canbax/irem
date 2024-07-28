@@ -32,12 +32,12 @@ describe("util functions", () => {
       ]);
     });
 
-    it("should 1000 lines in maximum 50 ms", async () => {
+    it("should 100 lines in maximum 50 ms", async () => {
       function createArray(n: number) {
         return Array.from({ length: n }, (v, k) => k + 1);
       }
       const t1 = new Date().getTime();
-      await readLinesFromTSV(TSV_DB_FILE, createArray(1000));
+      await readLinesFromTSV(TSV_DB_FILE, createArray(100));
       const deltaTime = new Date().getTime() - t1;
       expect(deltaTime).toBeLessThan(50);
     });

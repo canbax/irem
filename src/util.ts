@@ -189,3 +189,17 @@ export async function readLinesFromTSV(
 
   return linesRead;
 }
+
+/**
+ * add all elements of `setB` to `setA`
+ *
+ * @export
+ * @template T
+ * @param {Set<T>} setA
+ * @param {Set<T>} setB
+ */
+export function uniteSets<T>(setA: Set<T>, setB: Set<T>) {
+  for (const elem of setB) {
+    setA.add(elem);
+  }
+}
