@@ -14,5 +14,7 @@ describe("Trie", () => {
     const trie = new Trie();
     await trie.loadFromJson(TRIE_FILE);
     expect(trie.searchPrefix("Ankara")?.length).toBe(1);
+    expect(trie.searchPrefix("Constantinopolis")?.length).toBe(1); // search alternative names of İstanbul
+    expect(trie.searchPrefix("Ыстанбұл")?.length).toBe(1); // search alternative names of İstanbul in Kazakh language
   });
 });

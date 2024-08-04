@@ -13,7 +13,7 @@ describe("util functions", () => {
   });
 
   describe("readLinesFromTSV", async () => {
-    it("should read lines [1, 347651, 322442, 322444] correctly", async () => {
+    it("should read lines array [1, 347651, 322442, 322444] correctly", async () => {
       const linesRead = await readLinesFromTSV(
         TSV_DB_FILE,
         [1, 347651, 322442, 322444],
@@ -21,8 +21,25 @@ describe("util functions", () => {
       expect(linesRead.length).toBe(4);
       const names: string[] = [];
       for (const line of linesRead) {
-        const [name, , , , ,] = line?.split("\t");
-        names.push(name);
+        names.push(line.name);
+      }
+      expect(names).toStrictEqual([
+        "!Kheis Local Municipality",
+        "천리마구역",
+        "İstanbul",
+        "İyidere",
+      ]);
+    });
+
+    it("should read lines Set<number> [1, 347651, 322442, 322444] correctly ", async () => {
+      const linesRead = await readLinesFromTSV(
+        TSV_DB_FILE,
+        new Set<number>([1, 347651, 322442, 322444]),
+      );
+      expect(linesRead.length).toBe(4);
+      const names: string[] = [];
+      for (const line of linesRead) {
+        names.push(line.name);
       }
       expect(names).toStrictEqual([
         "!Kheis Local Municipality",

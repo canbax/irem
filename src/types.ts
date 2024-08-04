@@ -299,3 +299,23 @@ export type SimplePlace = {
   name: string;
   gps: [number, number];
 };
+
+export interface Place {
+  id: number;
+  name: string;
+  countryCode: string;
+  stateName: string;
+  latitude: number;
+  longitude: number;
+  alternativeNames: string[];
+}
+
+export interface PlaceMatch extends Place {
+  matchingString: string;
+  isMatchingAlternativeName: boolean;
+  editDistance: number;
+}
+
+export interface PlaceMatchWithCountry extends PlaceMatch {
+  country: string;
+}

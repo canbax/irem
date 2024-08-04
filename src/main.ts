@@ -1,26 +1,26 @@
+import { Trie } from "./trie.js";
 import { SupportedLanguage } from "./types.js";
+import { getAutocompleteResults, sortPlaces, TRIE_FILE } from "./util.js";
 
-/** E.g. `getAllCities("TR", "Ankara", "tr")`.
- * Returns a list of regions/cities/districts in given language. The list is sorted by distance from `baseLocation`
- * if `language` undefined, results will be returned in English. If `baseLocation` is undefined, the returned list will be sorted alphabetically
+const trie = new Trie();
+await trie.loadFromJson(TRIE_FILE);
+
+/** Returns a list of places in given language. if `latitude` and `longitude` is provided, the list is sorted by distance, otherwise text matching.
+ * If `language` undefined, results will be returned in English.
  * @param {string} searchTerm
  * @param {?SupportedLanguage} [language]
  * @param {?[number, number]} [baseLocation]
  */
-export function searchCities(
+export async function searchPlaces(
   searchTerm: string,
   language?: SupportedLanguage,
-  baseLocation?: [number, number],
+  latitude?: number,
+  longitude?: number,
 ) {
-  return "" + searchTerm + language + baseLocation;
-  // const data = readJSON(language);
-  // const cities: SimplePlace[] = [];
-  // for (const cityName in data[countryCode][">"][regionNameInEnglish][">"]) {
-  //   cities.push({
-  //     englishName: cityName,
-  //     name: data[countryCode][">"][regionNameInEnglish][">"][cityName].t,
-  //     gps: data[countryCode][">"][regionNameInEnglish].g,
-  //   });
-  // }
-  // return sortPlaces(baseLocation, cities);
+  const results = await getAutocompleteResults(searchTerm, trie);
+  sortPlaces(results, latitude, longitude);
+  // enrich results with country name
+  return results;
+
+  // return "" + searchTerm + language + baseLocation;
 }

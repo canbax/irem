@@ -1,7 +1,8 @@
-import { SimplePlace, SupportedLanguage } from "./types.js";
+import { Place, PlaceMatch, SimplePlace, SupportedLanguage } from "./types.js";
 import { readFile, writeFile, open } from "fs/promises";
 import { gunzip, gzip } from "zlib";
 import { promisify } from "util";
+import { Trie } from "./trie.js";
 
 export const supportedLanguages: SupportedLanguage[] = [
   "ar",
@@ -30,28 +31,25 @@ export function isSupportedLanguage(language?: SupportedLanguage) {
 export const TRIE_FILE = "data/trie.gz";
 export const TSV_DB_FILE = "data/db.tsv";
 
-/**
- * sorts places according to distance from baseLocation or sorts alphabetically
- * @template {SimplePlace} T
- * @param {([number, number] | undefined)} baseLocation
- * @param {T[]} places
- * @returns sorted list of places
- */
-export function sortPlaces<T extends SimplePlace>(
-  baseLocation: [number, number] | undefined,
+export function sortPlaces<T extends PlaceMatch>(
   places: T[],
+  latitude?: number,
+  longitude?: number,
 ) {
-  if (!baseLocation) {
-    return places.sort((a, b) => a.englishName.localeCompare(b.englishName));
+  if (isDefined(latitude) && isDefined(longitude)) {
+    const dist2 = (a: [number, number], b: [number, number]) => {
+      return Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2));
+    };
+    places.sort((a: PlaceMatch, b: PlaceMatch) => {
+      const distA = dist2([latitude, longitude], [a.latitude, a.longitude]);
+      const distB = dist2([latitude, longitude], [b.latitude, b.longitude]);
+      return distA - distB;
+    });
+  } else {
+    places.sort(
+      (a: PlaceMatch, b: PlaceMatch) => a.editDistance - b.editDistance,
+    );
   }
-  const dist2 = (a: [number, number], b: [number, number]) => {
-    return Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2));
-  };
-  return places.sort((a: SimplePlace, b: SimplePlace) => {
-    const distA = dist2(baseLocation, a.gps);
-    const distB = dist2(baseLocation, b.gps);
-    return distA - distB;
-  });
 }
 
 export function normalizeString(str: string) {
@@ -157,10 +155,10 @@ export async function writeGzippedJSON(
 
 export async function readLinesFromTSV(
   tsvFilePath: string,
-  lineNumbers: number[],
+  lineNumbers: number[] | Set<number>,
   indexFilePath = "data/index.bin",
-): Promise<string[]> {
-  const linesRead: string[] = [];
+): Promise<Place[]> {
+  const linesRead: Place[] = [];
   // Open both files
   const tsvFileHandle = await open(tsvFilePath, "r");
   const indexFileHandle = await open(indexFilePath, "r");
@@ -180,7 +178,9 @@ export async function readLinesFromTSV(
       Number(offset),
     );
     const current = lineBuffer.toString("utf8", 0, bytesRead).split("\n")[0];
-    if (current) linesRead.push(current);
+    if (current) {
+      linesRead.push(convertLinesToObjectArray(current, lineNumber));
+    }
   }
 
   // Close file handles
@@ -190,8 +190,61 @@ export async function readLinesFromTSV(
   return linesRead;
 }
 
+export function convertLinesToObjectArray(
+  line: string,
+  lineNumber: number,
+): Place {
+  const [name, countryCode, stateName, latitude, longitude, alternativeNames] =
+    line.split("\t");
+  return {
+    id: lineNumber,
+    name: name ?? "",
+    countryCode: countryCode ?? "",
+    stateName: stateName ?? "",
+    latitude: Number(latitude),
+    longitude: Number(longitude),
+    alternativeNames: alternativeNames?.split(/[,;]/) ?? [],
+  };
+}
+
+export async function getAutocompleteResults(searchTerm: string, trie: Trie) {
+  const { resultSet, query } = trie.autocomplete(searchTerm);
+  const places = await readLinesFromTSV(TSV_DB_FILE, resultSet);
+  return findMatchingPlaces(query, places);
+}
+
+function findMatchingPlaces(query: string, places: Place[]): PlaceMatch[] {
+  const r: PlaceMatch[] = [];
+  for (const place of places) {
+    const distanceToName = editDist(query, place.name);
+    const distToAlternative = place.alternativeNames
+      .map((x) => ({
+        name: x,
+        dist: editDist(query, place.name),
+      }))
+      .reduce((min, current) => (current.dist < min.dist ? current : min));
+
+    const matchingString =
+      distanceToName > distToAlternative.dist
+        ? distToAlternative.name
+        : place.name;
+    r.push({
+      ...place,
+      isMatchingAlternativeName: distanceToName > distToAlternative.dist,
+      editDistance: Math.min(distanceToName, distToAlternative.dist),
+      matchingString,
+    });
+  }
+
+  return r;
+}
+
+export function isDefined<T>(a: T | undefined | null): a is NonNullable<T> {
+  return a !== undefined && a !== null;
+}
+
 /**
- * add all elements of `setB` to `setA`
+ * add all elements of `setB` to `setA`. So it mutates `setA`
  *
  * @export
  * @template T
@@ -202,4 +255,33 @@ export function uniteSets<T>(setA: Set<T>, setB: Set<T>) {
   for (const elem of setB) {
     setA.add(elem);
   }
+}
+
+export function editDist(s1: string, s2: string): number {
+  const l1: number = s1.length + 1;
+  const l2: number = s2.length + 1;
+
+  const table: number[][] = Array(l2)
+    .fill(null)
+    .map((_, j) =>
+      Array(l1)
+        .fill(null)
+        .map((_, i) => (j === 0 ? i : i === 0 ? j : 0)),
+    );
+
+  for (let i = 1; i < l1; i++) {
+    for (let j = 1; j < l2; j++) {
+      if (s1[i - 1] === s2[j - 1]) {
+        // @ts-ignore: Object is possibly 'undefined'
+        table[j][i] = table[j - 1]?.[i - 1] as number;
+      } else {
+        // @ts-ignore: Object is possibly 'undefined'
+        table[j][i] = // @ts-ignore: Object is possibly 'undefined'
+          1 + Math.min(table[j][i - 1], table[j - 1][i], table[j - 1][i - 1]);
+      }
+    }
+  }
+
+  // @ts-ignore: Object is possibly 'undefined'
+  return table[l2 - 1][l1 - 1];
 }
