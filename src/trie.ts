@@ -99,28 +99,16 @@ export class Trie {
   ): { resultSet: Set<number>; query: string } {
     const resultSet = new Set<number>();
 
-    const { i, currentNode } = this.findLastNodeMatch(query);
+    const { i, currentNode } = this.findLastNodeMatch(query.trim());
     const normalizedQuery = normalizeString(query);
     const { i: i2, currentNode: c2 } = this.findLastNodeMatch(normalizedQuery);
     let maxMatchQuery = "";
     if (i2 > i) {
       maxMatchQuery = normalizedQuery;
-      this.collectLineNumbersWithBFS(
-        c2,
-        normalizedQuery.length,
-        i2,
-        resultSet,
-        maxResultCount,
-      );
+      this.collectLineNumbersWithBFS(c2, resultSet, maxResultCount);
     } else {
       maxMatchQuery = query;
-      this.collectLineNumbersWithBFS(
-        currentNode,
-        query.length,
-        i,
-        resultSet,
-        maxResultCount,
-      );
+      this.collectLineNumbersWithBFS(currentNode, resultSet, maxResultCount);
     }
 
     return { resultSet, query: maxMatchQuery };
@@ -130,30 +118,19 @@ export class Trie {
    * collects line numbers in `resultSet`
    *
    * @param {TrieNode} currentNode
-   * @param {number} querySize
-   * @param {number} queryIndex
    * @param {Set<number>} resultSet
    * @param {number} [maxResultCount=10]
    */
   collectLineNumbersWithBFS(
     currentNode: TrieNode,
-    querySize: number,
-    queryIndex: number,
     resultSet: Set<number>,
     maxResultCount: number = 10,
   ): void {
     if (resultSet.size > maxResultCount) return;
     uniteSets(resultSet, currentNode.lineNumbers);
-    if (queryIndex >= querySize) return;
 
     for (const [_, childNode] of Object.entries(currentNode.children)) {
-      this.collectLineNumbersWithBFS(
-        childNode,
-        querySize,
-        queryIndex++,
-        resultSet,
-        maxResultCount,
-      );
+      this.collectLineNumbersWithBFS(childNode, resultSet, maxResultCount);
     }
   }
 
@@ -198,7 +175,7 @@ export class Trie {
     const lines = fileContent.split("\n");
 
     lines.forEach((line, index) => {
-      if (line.trim() === "") return;
+      if (index === 0 || line.trim() === "") return; // skip header line
       const [name, , , , , alternative_names] = line.split("\t");
 
       // Insert original name

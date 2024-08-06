@@ -208,9 +208,14 @@ export function convertLinesToObjectArray(
 }
 
 export async function getAutocompleteResults(searchTerm: string, trie: Trie) {
+  if (!searchTerm.trim() || !trie) return [];
   const { resultSet, query } = trie.autocomplete(searchTerm);
   const places = await readLinesFromTSV(TSV_DB_FILE, resultSet);
-  return findMatchingPlaces(query, places);
+  const placeMatches = findMatchingPlaces(query, places);
+  placeMatches.sort((a, b) => {
+    return a.editDistance - b.editDistance;
+  });
+  return placeMatches;
 }
 
 function findMatchingPlaces(query: string, places: Place[]): PlaceMatch[] {
@@ -220,10 +225,9 @@ function findMatchingPlaces(query: string, places: Place[]): PlaceMatch[] {
     const distToAlternative = place.alternativeNames
       .map((x) => ({
         name: x,
-        dist: editDist(query, place.name),
+        dist: editDist(query, x),
       }))
       .reduce((min, current) => (current.dist < min.dist ? current : min));
-
     const matchingString =
       distanceToName > distToAlternative.dist
         ? distToAlternative.name
