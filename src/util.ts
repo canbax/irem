@@ -1,4 +1,9 @@
-import { Place, PlaceMatch, SimplePlace, SupportedLanguage } from "./types.js";
+import {
+  Place,
+  PlaceMatch,
+  PlaceMatchWithCountry,
+  SupportedLanguage,
+} from "./types.js";
 import { readFile, writeFile, open } from "fs/promises";
 import { gunzip, gzip } from "zlib";
 import { promisify } from "util";
@@ -31,6 +36,19 @@ export function isSupportedLanguage(language?: SupportedLanguage) {
 export const TRIE_FILE = "data/trie.gz";
 export const TSV_DB_FILE = "data/db.tsv";
 
+const COUNTRY_TRANSLATIONS = await readGzippedJSON(
+  "data/country-translations.json.gz",
+);
+
+/**
+ * Sort places by GPS position proximity.
+ * If any of `latitude` or `longitude` is not provided, sort by edit distance to the search term
+ * @export
+ * @template {PlaceMatch} T
+ * @param {T[]} places
+ * @param {?number} [latitude]
+ * @param {?number} [longitude]
+ */
 export function sortPlaces<T extends PlaceMatch>(
   places: T[],
   latitude?: number,
@@ -50,6 +68,23 @@ export function sortPlaces<T extends PlaceMatch>(
       (a: PlaceMatch, b: PlaceMatch) => a.editDistance - b.editDistance,
     );
   }
+}
+
+export function enrichPlaceMatchesWithCountryName(
+  results: PlaceMatch[],
+  language?: SupportedLanguage,
+) {
+  const copy: PlaceMatchWithCountry[] = results.map((item) => ({
+    country: "",
+    ...item,
+  }));
+  const lang: SupportedLanguage = language ?? "en";
+  for (const c of copy) {
+    c.country =
+      COUNTRY_TRANSLATIONS[c.countryCode]?.[lang] ??
+      COUNTRY_TRANSLATIONS[c.countryCode]?.en;
+  }
+  return copy;
 }
 
 export function normalizeString(str: string) {
@@ -109,6 +144,7 @@ export async function readGzippedFile(filePath: string) {
     return decompressedBuffer.toString("utf8");
   } catch (err) {
     console.error("Error:", err);
+    return err;
   }
 }
 
@@ -130,6 +166,7 @@ export async function readGzippedJSON(filePath: string) {
     return JSON.parse(jsonString);
   } catch (err) {
     console.error("Error:", err);
+    return err;
   }
 }
 

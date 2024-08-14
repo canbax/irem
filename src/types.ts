@@ -1,23 +1,7 @@
-export type CountryNameInEnglish = string;
-export type RegionNameInEnglish = string;
-export type CityNameInEnglish = string;
-
-export type CountryData = {
-  n: CountryNameInEnglish; // name in English
-  t: string; // translation in the current language
-  g: [number, number]; // GPS coordinates
-  ">": Record<RegionNameInEnglish, RegionData>; //
-};
-
-export type RegionData = {
-  t: string; // translation in the current language
-  g: [number, number]; // GPS coordinates
-  ">": Record<CityNameInEnglish, CityData>;
-};
-export type CityData = {
-  t: string; // translation in the current language
-  g: [number, number]; // GPS coordinates
-};
+export type ICountryTranslations = Record<
+  CountryCode,
+  Record<SupportedLanguage, string>
+>;
 
 export type CountryCode =
   | "AF"
@@ -289,16 +273,6 @@ export type SupportedLanguage =
   | "tr"
   | "zh"
   | string;
-
-export interface SimpleCountry extends SimplePlace {
-  code: CountryCode;
-}
-
-export type SimplePlace = {
-  englishName: string;
-  name: string;
-  gps: [number, number];
-};
 
 export interface Place {
   id: number;

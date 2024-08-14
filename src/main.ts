@@ -1,6 +1,11 @@
 import { Trie } from "./trie.js";
 import { SupportedLanguage } from "./types.js";
-import { getAutocompleteResults, sortPlaces, TRIE_FILE } from "./util.js";
+import {
+  enrichPlaceMatchesWithCountryName,
+  getAutocompleteResults,
+  sortPlaces,
+  TRIE_FILE,
+} from "./util.js";
 
 const trie = new Trie();
 await trie.loadFromJson(TRIE_FILE);
@@ -20,7 +25,5 @@ export async function searchPlaces(
   const results = await getAutocompleteResults(searchTerm, trie);
   sortPlaces(results, latitude, longitude);
   // enrich results with country name
-  return results;
-
-  // return "" + searchTerm + language + baseLocation;
+  return enrichPlaceMatchesWithCountryName(results, language);
 }
