@@ -1,10 +1,5 @@
-import {
-  Place,
-  PlaceMatch,
-  PlaceMatchWithCountry,
-  SupportedLanguage,
-} from "./types.js";
-import { readFile, writeFile, open } from "fs/promises";
+import { Place, PlaceMatch, SupportedLanguage } from "./types.js";
+import { readFile, writeFile, open, FileHandle } from "fs/promises";
 import { gunzip, gzip } from "zlib";
 import { promisify } from "util";
 import { Trie } from "./trie.js";
@@ -70,11 +65,11 @@ export function sortPlaces<T extends PlaceMatch>(
   }
 }
 
-export function enrichPlaceMatchesWithCountryName(
-  results: PlaceMatch[],
+export function enrichPlaceMatchesWithCountryName<T extends Place>(
+  results: T[],
   language?: SupportedLanguage,
-) {
-  const copy: PlaceMatchWithCountry[] = results.map((item) => ({
+): (T & { country: string })[] {
+  const copy = results.map((item) => ({
     country: "",
     ...item,
   }));
@@ -190,41 +185,128 @@ export async function writeGzippedJSON(
   }
 }
 
+const __PLACE_CACHE: Record<number, Place> = {};
+
+async function readPlaceLineFromTSV(
+  tsvFileHandle: FileHandle,
+  indexFileHandle: FileHandle,
+  lineNumber: number,
+): Promise<Place> {
+  if (__PLACE_CACHE[lineNumber]) return __PLACE_CACHE[lineNumber];
+
+  // Read the offset from the index file
+  const buffer = Buffer.alloc(8);
+  await indexFileHandle.read(buffer, 0, 8, lineNumber * 8);
+  const offset = buffer.readBigInt64LE();
+
+  // Read the line from the TSV file
+  const lineBuffer = Buffer.alloc(1024); // Assume max line length of 1024 bytes
+  const { bytesRead } = await tsvFileHandle.read(
+    lineBuffer,
+    0,
+    1024,
+    Number(offset),
+  );
+  const current = lineBuffer.toString("utf8", 0, bytesRead).split("\n")[0];
+  if (!current) {
+    throw new Error("cannot read place line:" + lineNumber);
+  }
+  const place = convertLinesToObjectArray(current, lineNumber);
+  __PLACE_CACHE[lineNumber] = place;
+  return place;
+}
+
 export async function readLinesFromTSV(
   tsvFilePath: string,
   lineNumbers: number[] | Set<number>,
   indexFilePath = "data/index.bin",
 ): Promise<Place[]> {
-  const linesRead: Place[] = [];
+  const placesRead: Place[] = [];
   // Open both files
   const tsvFileHandle = await open(tsvFilePath, "r");
   const indexFileHandle = await open(indexFilePath, "r");
 
   for (const lineNumber of lineNumbers) {
-    // Read the offset from the index file
-    const buffer = Buffer.alloc(8);
-    await indexFileHandle.read(buffer, 0, 8, lineNumber * 8);
-    const offset = buffer.readBigInt64LE();
-
-    // Read the line from the TSV file
-    const lineBuffer = Buffer.alloc(1024); // Assume max line length of 1024 bytes
-    const { bytesRead } = await tsvFileHandle.read(
-      lineBuffer,
-      0,
-      1024,
-      Number(offset),
+    const place = await readPlaceLineFromTSV(
+      tsvFileHandle,
+      indexFileHandle,
+      lineNumber,
     );
-    const current = lineBuffer.toString("utf8", 0, bytesRead).split("\n")[0];
-    if (current) {
-      linesRead.push(convertLinesToObjectArray(current, lineNumber));
-    }
+    placesRead.push(place);
   }
 
   // Close file handles
   await tsvFileHandle.close();
   await indexFileHandle.close();
 
-  return linesRead;
+  return placesRead;
+}
+
+export async function gridSearchByGPS(
+  latitude: number,
+  longitude: number,
+  resultCount = 10,
+): Promise<Place[]> {
+  const CELL_SIZE = 0.1; // Define the grid cell size in degrees
+
+  function getGridCell(lat: number, lon: number) {
+    const latIndex = Math.floor(lat / CELL_SIZE);
+    const lonIndex = Math.floor(lon / CELL_SIZE);
+    return `${latIndex},${lonIndex}`;
+  }
+
+  // Calculate the Euclidean distance between two points (lat1, lon1) and (lat2, lon2)
+  function calculateDistance(
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number,
+  ) {
+    return Math.sqrt(Math.pow(lat1 - lat2, 2) + Math.pow(lon1 - lon2, 2));
+  }
+
+  const targetCell = getGridCell(latitude, longitude);
+
+  const neighbors: {
+    lineNumber: number;
+    distance: number;
+  }[] = []; // line numbers of closest settlements
+  const [latIndex, lonIndex] = targetCell.split(",").map(Number);
+
+  if (!isDefined(latIndex) || !isDefined(lonIndex)) {
+    throw new Error(
+      `For target cell '${targetCell}', latitude index or longitude index is undefined `,
+    );
+  }
+
+  const grid = await readGzippedJSON("data/grid.json.gz");
+
+  // Check the current cell and its neighbors
+  for (let i = latIndex - 1; i <= latIndex + 1; i++) {
+    for (let j = lonIndex - 1; j <= lonIndex + 1; j++) {
+      const cellKey = `${i},${j}`;
+      if (grid[cellKey]) {
+        for (const settlement of grid[cellKey]) {
+          const distance = calculateDistance(
+            latitude,
+            longitude,
+            settlement[0],
+            settlement[1],
+          );
+          neighbors.push({ lineNumber: settlement[2], distance });
+        }
+      }
+    }
+  }
+
+  // Sort by distance and return the top k results
+  neighbors.sort((a, b) => a.distance - b.distance);
+  const topNeighbors = neighbors.slice(0, resultCount);
+
+  return await readLinesFromTSV(
+    TSV_DB_FILE,
+    topNeighbors.map((x) => x.lineNumber),
+  );
 }
 
 export function convertLinesToObjectArray(

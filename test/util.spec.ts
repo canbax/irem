@@ -32,10 +32,10 @@ describe("util functions", () => {
         names.push(line.name);
       }
       expect(names).toStrictEqual([
-        "!Kheis Local Municipality",
-        "천리마구역",
-        "İstanbul",
-        "İyidere",
+        "Andorra la Vella",
+        "El Cafetal",
+        "Hardin",
+        "Harper",
       ]);
     });
 
@@ -50,10 +50,10 @@ describe("util functions", () => {
         names.push(line.name);
       }
       expect(names).toStrictEqual([
-        "!Kheis Local Municipality",
-        "천리마구역",
-        "İstanbul",
-        "İyidere",
+        "Andorra la Vella",
+        "El Cafetal",
+        "Hardin",
+        "Harper",
       ]);
     });
 

@@ -1,6 +1,11 @@
 import { Trie } from "./trie.js";
-import { SupportedLanguage } from "./types.js";
 import {
+  PlaceMatchWithCountry,
+  PlaceWithCountry,
+  SupportedLanguage,
+} from "./types.js";
+import {
+  gridSearchByGPS,
   enrichPlaceMatchesWithCountryName,
   getAutocompleteResults,
   sortPlaces,
@@ -21,9 +26,18 @@ export async function searchPlaces(
   language?: SupportedLanguage,
   latitude?: number,
   longitude?: number,
-) {
+): Promise<PlaceMatchWithCountry[]> {
   const results = await getAutocompleteResults(searchTerm, trie);
   sortPlaces(results, latitude, longitude);
   // enrich results with country name
+  return enrichPlaceMatchesWithCountryName(results, language);
+}
+
+export async function listPlaces(
+  latitude: number,
+  longitude: number,
+  language?: SupportedLanguage,
+): Promise<PlaceWithCountry[]> {
+  const results = await gridSearchByGPS(latitude, longitude);
   return enrichPlaceMatchesWithCountryName(results, language);
 }

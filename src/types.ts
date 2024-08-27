@@ -274,13 +274,15 @@ export type SupportedLanguage =
   | "zh"
   | string;
 
-export interface Place {
+export interface EarthLocation {
+  latitude: number;
+  longitude: number;
+}
+export interface Place extends EarthLocation {
   id: number;
   name: string;
   countryCode: string;
   stateName: string;
-  latitude: number;
-  longitude: number;
   alternativeNames: string[];
 }
 
@@ -291,5 +293,9 @@ export interface PlaceMatch extends Place {
 }
 
 export interface PlaceMatchWithCountry extends PlaceMatch {
+  country: string;
+}
+
+export interface PlaceWithCountry extends Place {
   country: string;
 }
