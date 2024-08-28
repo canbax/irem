@@ -15,13 +15,18 @@ import {
 const trie = new Trie();
 await trie.loadFromJson(TRIE_FILE);
 
-/** Returns a list of places in given language. if `latitude` and `longitude` is provided, the list is sorted by distance, otherwise text matching.
+/**
+ * Returns a list of places based on search term in given language. if `latitude` and `longitude` is provided, the list is sorted by distance, otherwise sorted by text match.
  * If `language` undefined, results will be returned in English.
+ * @export
+ * @async
  * @param {string} searchTerm
  * @param {?SupportedLanguage} [language]
- * @param {?[number, number]} [baseLocation]
+ * @param {?number} [latitude]
+ * @param {?number} [longitude]
+ * @returns {Promise<PlaceMatchWithCountry[]>}
  */
-export async function searchPlaces(
+export async function getPlaceSuggestionsByText(
   searchTerm: string,
   language?: SupportedLanguage,
   latitude?: number,
@@ -33,7 +38,17 @@ export async function searchPlaces(
   return enrichPlaceMatchesWithCountryName(results, language);
 }
 
-export async function listPlaces(
+/**
+ * Returns a list of places based on provided `latitude` and `longitude` values in given language. The list is sorted by distance.
+ *
+ * @export
+ * @async
+ * @param {number} latitude
+ * @param {number} longitude
+ * @param {?SupportedLanguage} [language]
+ * @returns {Promise<PlaceWithCountry[]>}
+ */
+export async function getNearbyPlaces(
   latitude: number,
   longitude: number,
   language?: SupportedLanguage,

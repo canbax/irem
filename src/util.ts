@@ -3,6 +3,7 @@ import { readFile, writeFile, open, FileHandle } from "fs/promises";
 import { gunzip, gzip } from "zlib";
 import { promisify } from "util";
 import { Trie } from "./trie.js";
+import { join } from "path";
 
 export const supportedLanguages: SupportedLanguage[] = [
   "ar",
@@ -28,12 +29,16 @@ export function isSupportedLanguage(language?: SupportedLanguage) {
   return supportedLanguages.includes(language.toLowerCase());
 }
 
-export const TRIE_FILE = "data/trie.gz";
-export const TSV_DB_FILE = "data/db.tsv";
+export const TRIE_FILE = join(__dirname, "data", "trie.gz");
+export const TSV_DB_FILE = join(__dirname, "data", "db.tsv");
 
-const COUNTRY_TRANSLATIONS = await readGzippedJSON(
-  "data/country-translations.json.gz",
+export const COUNTRIES_FILE = join(
+  __dirname,
+  "data",
+  "country-translations.json.gz",
 );
+
+const COUNTRY_TRANSLATIONS = await readGzippedJSON(COUNTRIES_FILE);
 
 /**
  * Sort places by GPS position proximity.
@@ -145,18 +150,7 @@ export async function readGzippedFile(filePath: string) {
 
 export async function readGzippedJSON(filePath: string) {
   try {
-    // Promisify the gunzip function
-    const gunzipAsync = promisify(gunzip);
-
-    // Read the gzipped file
-    const buffer = await readFile(filePath);
-
-    // Decompress the gzipped buffer
-    const decompressedBuffer = await gunzipAsync(buffer);
-
-    // Convert the buffer to a string
-    const jsonString = decompressedBuffer.toString("utf8");
-
+    const jsonString = (await readGzippedFile(filePath)) as string;
     // Parse the JSON string
     return JSON.parse(jsonString);
   } catch (err) {
@@ -192,7 +186,7 @@ async function readPlaceLineFromTSV(
   indexFileHandle: FileHandle,
   lineNumber: number,
 ): Promise<Place> {
-  if (__PLACE_CACHE[lineNumber]) return __PLACE_CACHE[lineNumber];
+  if (__PLACE_CACHE[lineNumber]) return __PLACE_CACHE[lineNumber] as Place;
 
   // Read the offset from the index file
   const buffer = Buffer.alloc(8);
@@ -216,10 +210,11 @@ async function readPlaceLineFromTSV(
   return place;
 }
 
+const __indexFile = join(__dirname, "data", "index.bin");
 export async function readLinesFromTSV(
   tsvFilePath: string,
   lineNumbers: number[] | Set<number>,
-  indexFilePath = "data/index.bin",
+  indexFilePath = __indexFile,
 ): Promise<Place[]> {
   const placesRead: Place[] = [];
   // Open both files
@@ -279,7 +274,8 @@ export async function gridSearchByGPS(
     );
   }
 
-  const grid = await readGzippedJSON("data/grid.json.gz");
+  const gridFile = join(__dirname, "data", "grid.json.gz");
+  const grid = await readGzippedJSON(gridFile);
 
   // Check the current cell and its neighbors
   for (let i = latIndex - 1; i <= latIndex + 1; i++) {

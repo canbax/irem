@@ -2,7 +2,7 @@
 
 ![Build](https://github.com/canbax/irem/actions/workflows/test.yml/badge.svg) | ![Statements](https://img.shields.io/badge/statements-100%25-brightgreen.svg?style=flat)
 
-Multi-lingual city data of whole world.
+Search for any city in any language in Earth.
 
 ## Usage
 

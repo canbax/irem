@@ -1,7 +1,7 @@
 {
   "name": "irem",
   "version": "1.0.2-beta",
-  "description": "Multi-lingual cities database of whole world.",
+  "description": "Search for any city in any language in Earth.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -31,7 +31,8 @@
     "vitest": "^1.6.0"
   },
   "scripts": {
-    "build": "del dist && tsc",
+    "build": "del dist && tsc && npm run copy-data",
+    "copy-data": "cp -r src/data dist/",
     "test": "vitest",
     "prepare": "husky",
     "format": "prettier --write .",

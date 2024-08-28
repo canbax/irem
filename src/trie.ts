@@ -45,7 +45,7 @@ export class Trie {
       if (!current.children[char]) {
         current.children[char] = new TrieNode();
       }
-      current = current.children[char];
+      current = current.children[char] as TrieNode;
     }
 
     current.lineNumbers.add(lineNumber);
@@ -64,7 +64,7 @@ export class Trie {
       }
 
       // Move the currentNode pointer to the already existing node for current character.
-      currentNode = currentNode.children[c];
+      currentNode = currentNode.children[c] as TrieNode;
     }
 
     // Prefix exist in the Trie
@@ -86,7 +86,7 @@ export class Trie {
       }
 
       // Move the currentNode pointer to the already existing node for current character.
-      currentNode = currentNode.children[c];
+      currentNode = currentNode.children[c] as TrieNode;
     }
 
     // Prefix exist in the Trie

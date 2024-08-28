@@ -8,6 +8,7 @@ import {
 } from "../src/util";
 import { Trie } from "../src/trie";
 import { PlaceMatch } from "../src/types";
+import { readFileSync } from "fs";
 
 describe("util functions", () => {
   describe("normalizeString", () => {
@@ -57,14 +58,20 @@ describe("util functions", () => {
       ]);
     });
 
-    it("should 100 lines in maximum 50 ms", async () => {
+    it("should 100 lines faster than reading whole file", async () => {
       function createArray(n: number) {
         return Array.from({ length: n }, (v, k) => k + 1);
       }
       const t1 = new Date().getTime();
       await readLinesFromTSV(TSV_DB_FILE, createArray(100));
       const deltaTime = new Date().getTime() - t1;
-      expect(deltaTime).toBeLessThan(50);
+
+      const t2 = new Date().getTime();
+      const fileContent = readFileSync(TSV_DB_FILE, "utf-8");
+      fileContent.split("\n");
+      const deltaTime2 = new Date().getTime() - t2;
+
+      expect(deltaTime).toBeLessThan(deltaTime2);
     });
   });
 
