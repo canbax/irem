@@ -3,7 +3,8 @@ import { readFile, writeFile, open, FileHandle } from "fs/promises";
 import { gunzip, gzip } from "zlib";
 import { promisify } from "util";
 import { Trie } from "./trie.js";
-import { join } from "path";
+import { dirname, join } from "path";
+import { fileURLToPath } from "url";
 
 export const supportedLanguages: SupportedLanguage[] = [
   "ar",
@@ -29,6 +30,7 @@ export function isSupportedLanguage(language?: SupportedLanguage) {
   return supportedLanguages.includes(language.toLowerCase());
 }
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 export const TRIE_FILE = join(__dirname, "data", "trie.gz");
 export const TSV_DB_FILE = join(__dirname, "data", "db.tsv");
 
