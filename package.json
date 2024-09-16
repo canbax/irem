@@ -33,7 +33,8 @@
   "scripts": {
     "build": "rm -rf dist && tsc && npm run copy-data",
     "copy-data": "cp -r src/data dist/",
-    "test": "vitest",
+    "test": "vitest run",
+    "test-watch": "vitest",
     "prepare": "husky",
     "format": "prettier --write .",
     "make-badges": "istanbul-badges-readme",

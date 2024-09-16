@@ -324,9 +324,13 @@ export function convertLinesToObjectArray(
   };
 }
 
-export async function getAutocompleteResults(searchTerm: string, trie: Trie) {
+export async function getAutocompleteResults(
+  searchTerm: string,
+  trie: Trie,
+  maxResultCount = 10,
+) {
   if (!searchTerm.trim() || !trie) return [];
-  const { resultSet, query } = trie.autocomplete(searchTerm);
+  const { resultSet, query } = trie.autocomplete(searchTerm, maxResultCount);
   const places = await readLinesFromTSV(TSV_DB_FILE, resultSet);
   const placeMatches = findMatchingPlaces(query, places);
   placeMatches.sort((a, b) => {
@@ -405,4 +409,9 @@ export function editDist(s1: string, s2: string): number {
 
   // @ts-ignore: Object is possibly 'undefined'
   return table[l2 - 1][l1 - 1];
+}
+
+export function getValidResultCount(count?: number) {
+  if (typeof count === "number" && count < 100 && count > 0) return count;
+  return 10;
 }
