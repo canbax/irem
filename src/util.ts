@@ -67,7 +67,7 @@ export function sortPlaces<T extends PlaceMatch>(
     });
   } else {
     places.sort(
-      (a: PlaceMatch, b: PlaceMatch) => a.editDistance - b.editDistance,
+      (a: PlaceMatch, b: PlaceMatch) => b.prefixMatchCount - a.prefixMatchCount,
     );
   }
 }
@@ -334,7 +334,7 @@ export async function getAutocompleteResults(
   const places = await readLinesFromTSV(TSV_DB_FILE, resultSet);
   const placeMatches = findMatchingPlaces(query, places);
   placeMatches.sort((a, b) => {
-    return a.editDistance - b.editDistance;
+    return b.prefixMatchCount - a.prefixMatchCount;
   });
   return placeMatches;
 }
@@ -342,21 +342,22 @@ export async function getAutocompleteResults(
 function findMatchingPlaces(query: string, places: Place[]): PlaceMatch[] {
   const r: PlaceMatch[] = [];
   for (const place of places) {
-    const distanceToName = editDist(query, place.name);
-    const distToAlternative = place.alternativeNames
+    const similarity = getPrefixMatchCount(query, place.name);
+    const simToAlternative = place.alternativeNames
       .map((x) => ({
         name: x,
-        dist: editDist(query, x),
+        sim: getPrefixMatchCount(query, x),
       }))
-      .reduce((min, current) => (current.dist < min.dist ? current : min));
-    const matchingString =
-      distanceToName > distToAlternative.dist
-        ? distToAlternative.name
-        : place.name;
+      .reduce((max, current) => (current.sim > max.sim ? current : max));
+
+    const isAlternativeMatches = simToAlternative.sim > similarity;
+    const matchingString = isAlternativeMatches
+      ? simToAlternative.name
+      : place.name;
     r.push({
       ...place,
-      isMatchingAlternativeName: distanceToName > distToAlternative.dist,
-      editDistance: Math.min(distanceToName, distToAlternative.dist),
+      isMatchingAlternativeName: isAlternativeMatches,
+      prefixMatchCount: Math.max(similarity, simToAlternative.sim),
       matchingString,
     });
   }
@@ -382,33 +383,20 @@ export function uniteSets<T>(setA: Set<T>, setB: Set<T>) {
   }
 }
 
-export function editDist(s1: string, s2: string): number {
-  const l1: number = s1.length + 1;
-  const l2: number = s2.length + 1;
+export function getPrefixMatchCount(str1: string, str2: string): number {
+  const s1 = str1.trim().toLowerCase();
+  const s2 = str2.trim().toLowerCase();
+  let count = 0;
+  const minLength = Math.min(s1.length, s2.length);
 
-  const table: number[][] = Array(l2)
-    .fill(null)
-    .map((_, j) =>
-      Array(l1)
-        .fill(null)
-        .map((_, i) => (j === 0 ? i : i === 0 ? j : 0)),
-    );
-
-  for (let i = 1; i < l1; i++) {
-    for (let j = 1; j < l2; j++) {
-      if (s1[i - 1] === s2[j - 1]) {
-        // @ts-ignore: Object is possibly 'undefined'
-        table[j][i] = table[j - 1]?.[i - 1] as number;
-      } else {
-        // @ts-ignore: Object is possibly 'undefined'
-        table[j][i] = // @ts-ignore: Object is possibly 'undefined'
-          1 + Math.min(table[j][i - 1], table[j - 1][i], table[j - 1][i - 1]);
-      }
+  for (let i = 0; i < minLength; i++) {
+    if (s1[i] === s2[i]) {
+      count++;
+    } else {
+      return count;
     }
   }
-
-  // @ts-ignore: Object is possibly 'undefined'
-  return table[l2 - 1][l1 - 1];
+  return count;
 }
 
 export function getValidResultCount(count?: number) {

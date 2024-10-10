@@ -15,6 +15,17 @@ describe("search places", () => {
     const results = await getPlaceSuggestionsByText("Ankara", "tr");
     expectAnkara(results[0]);
   });
+
+  it("should return a list of matches for a valid search with GPS", async () => {
+    const results = await getPlaceSuggestionsByText(
+      "keç",
+      undefined,
+      39.9671296,
+      32.6467584,
+    );
+    expect(results[0].matchingString).toBe("Keçiören");
+    expect(results[1].matchingString).toBe("Keçiborlu");
+  });
 });
 
 describe("list places based on approximation to GPS", () => {

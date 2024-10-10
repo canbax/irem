@@ -11,6 +11,8 @@ import {
   sortPlaces,
   TRIE_FILE,
   getValidResultCount,
+  readLinesFromTSV,
+  TSV_DB_FILE,
 } from "./util.js";
 
 const trie = new Trie();
@@ -52,4 +54,16 @@ export async function getNearbyPlaces(
     getValidResultCount(maxResultCount),
   );
   return enrichPlaceMatchesWithCountryName(results, language);
+}
+
+export async function getPlaceById(
+  placeId: number,
+  language?: SupportedLanguage,
+) {
+  const results = await readLinesFromTSV(TSV_DB_FILE, [placeId]);
+  const enriched = enrichPlaceMatchesWithCountryName(results, language);
+  if (enriched.length !== 1) {
+    return undefined;
+  }
+  return enriched[0];
 }

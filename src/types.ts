@@ -289,7 +289,7 @@ export interface Place extends EarthLocation {
 export interface PlaceMatch extends Place {
   matchingString: string;
   isMatchingAlternativeName: boolean;
-  editDistance: number;
+  prefixMatchCount: number;
 }
 
 export interface PlaceMatchWithCountry extends PlaceMatch {
