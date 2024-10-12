@@ -330,9 +330,9 @@ export async function getAutocompleteResults(
   maxResultCount = 10,
 ) {
   if (!searchTerm.trim() || !trie) return [];
-  const { resultSet, query } = trie.autocomplete(searchTerm, maxResultCount);
+  const resultSet = trie.autocomplete(searchTerm, maxResultCount);
   const places = await readLinesFromTSV(TSV_DB_FILE, resultSet);
-  const placeMatches = findMatchingPlaces(query, places);
+  const placeMatches = findMatchingPlaces(searchTerm, places);
   placeMatches.sort((a, b) => {
     return b.prefixMatchCount - a.prefixMatchCount;
   });

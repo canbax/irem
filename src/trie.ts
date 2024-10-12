@@ -93,25 +93,19 @@ export class Trie {
     return { currentNode, i };
   }
 
-  autocomplete(
-    query: string,
-    maxResultCount = 10,
-  ): { resultSet: Set<number>; query: string } {
+  autocomplete(query: string, maxResultCount = 10): Set<number> {
     const resultSet = new Set<number>();
 
     const { i, currentNode } = this.findLastNodeMatch(query.trim());
     const normalizedQuery = normalizeString(query);
     const { i: i2, currentNode: c2 } = this.findLastNodeMatch(normalizedQuery);
-    let maxMatchQuery = "";
     if (i2 > i) {
-      maxMatchQuery = normalizedQuery;
       this.collectLineNumbersWithBFS(c2, resultSet, maxResultCount);
     } else {
-      maxMatchQuery = query;
       this.collectLineNumbersWithBFS(currentNode, resultSet, maxResultCount);
     }
 
-    return { resultSet, query: maxMatchQuery };
+    return resultSet;
   }
 
   /**

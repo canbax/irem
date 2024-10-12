@@ -16,6 +16,16 @@ describe("search places", () => {
     expectAnkara(results[0]);
   });
 
+  it("should return a list of matches for a valid search without GPS", async () => {
+    const results = await getPlaceSuggestionsByText(
+      "Çankırı",
+      undefined,
+      undefined,
+      undefined,
+    );
+    expect(results[0].matchingString).toBe("Çankırı");
+  });
+
   it("should return a list of matches for a valid search with GPS", async () => {
     const results = await getPlaceSuggestionsByText(
       "keç",

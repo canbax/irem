@@ -106,7 +106,7 @@ describe("util functions", () => {
 
     it("should get autocomplete results for a partial match", async () => {
       const results = await getAutocompleteResults("anka", trie);
-      expectAnkara(results[2]);
+      expectAnkara(results[6]);
       expect(results.length).toBeGreaterThan(5);
     });
 
