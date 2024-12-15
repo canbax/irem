@@ -55,20 +55,34 @@ export function sortPlaces<T extends PlaceMatch>(
   places: T[],
   latitude?: number,
   longitude?: number,
+  countryCode = "",
 ) {
   if (isDefined(latitude) && isDefined(longitude)) {
     const dist2 = (a: [number, number], b: [number, number]) => {
       return Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2));
     };
     places.sort((a: PlaceMatch, b: PlaceMatch) => {
+      const matchesA =
+        a.countryCode.toLowerCase() === countryCode.toLowerCase();
+      const matchesB =
+        b.countryCode.toLowerCase() === countryCode.toLowerCase();
+      if (matchesA) return -1;
+      else if (matchesB) return 1;
       const distA = dist2([latitude, longitude], [a.latitude, a.longitude]);
       const distB = dist2([latitude, longitude], [b.latitude, b.longitude]);
       return distA - distB;
     });
   } else {
-    places.sort(
-      (a: PlaceMatch, b: PlaceMatch) => b.prefixMatchCount - a.prefixMatchCount,
-    );
+    places.sort((a: PlaceMatch, b: PlaceMatch) => {
+      const matchesA =
+        a.countryCode.toLowerCase() === countryCode.toLowerCase();
+      const matchesB =
+        b.countryCode.toLowerCase() === countryCode.toLowerCase();
+      if (matchesA) return -1;
+      else if (matchesB) return 1;
+
+      return b.prefixMatchCount - a.prefixMatchCount;
+    });
   }
 }
 

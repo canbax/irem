@@ -28,15 +28,14 @@ export async function getPlaceSuggestionsByText(
   latitude?: number,
   longitude?: number,
   maxResultCount = 10,
+  countryCode = "",
 ): Promise<PlaceMatchWithCountry[]> {
-  const results = await getAutocompleteResults(
-    searchTerm,
-    trie,
-    getValidResultCount(maxResultCount),
-  );
-  sortPlaces(results, latitude, longitude);
+  const results = await getAutocompleteResults(searchTerm, trie, 1000);
+  sortPlaces(results, latitude, longitude, countryCode);
+  const returnCount = getValidResultCount(maxResultCount);
+  const cappedResults = results.slice(0, returnCount);
   // enrich results with country name
-  return enrichPlaceMatchesWithCountryName(results, language);
+  return enrichPlaceMatchesWithCountryName(cappedResults, language);
 }
 
 /**

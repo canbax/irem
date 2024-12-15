@@ -36,6 +36,22 @@ describe("search places", () => {
     expect(results[0].matchingString).toBe("Keçiören");
     expect(results[1].matchingString).toBe("Keçiborlu");
   });
+
+  it("should prioritize 'TR' results 'cuz 'TR' country code is passed", async () => {
+    const results = await getPlaceSuggestionsByText(
+      "Ke",
+      "tr",
+      undefined,
+      undefined,
+      undefined,
+      "tr",
+    );
+    console.log("results: ", results);
+    expect(results.length).toBeGreaterThan(9);
+    for (const r of results) {
+      expect(r.countryCode).toEqual("tr");
+    }
+  });
 });
 
 describe("list places based on approximation to GPS", () => {
