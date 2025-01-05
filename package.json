@@ -39,7 +39,7 @@
     "format": "prettier --write .",
     "make-badges": "istanbul-badges-readme",
     "coverage": "vitest run --coverage",
-    "all": "npm run build && npm run build-dev && npm run format && npm run lint && npm run lint-fix"
+    "all": "npm run format && npm run test && npm run build"
   },
   "files": [
     "dist"

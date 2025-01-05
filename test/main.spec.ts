@@ -46,7 +46,6 @@ describe("search places", () => {
       undefined,
       "tr",
     );
-    console.log("results: ", results);
     expect(results.length).toBeGreaterThan(9);
     for (const r of results) {
       expect(r.countryCode).toEqual("tr");
