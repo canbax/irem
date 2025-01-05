@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   getAutocompleteResults,
+  isSupportedLanguage,
   normalizeString,
   readLinesFromTSV,
   TRIE_FILE,
@@ -11,6 +12,15 @@ import { PlaceMatch } from "../src/types";
 import { readFileSync } from "fs";
 
 describe("util functions", () => {
+  describe("isSupportedLanguage", () => {
+    it("should support languages with lower case and upper case", () => {
+      expect(isSupportedLanguage("şŞÖöĞğİIÜüÇç")).toBe(false);
+      expect(isSupportedLanguage("TR")).toBe(true);
+      expect(isSupportedLanguage("tr")).toBe(true);
+      expect(isSupportedLanguage("EN")).toBe(true);
+      expect(isSupportedLanguage("en")).toBe(true);
+    });
+  });
   describe("normalizeString", () => {
     it("should convert Turkish characters to English mappings", () => {
       expect(normalizeString("şŞÖöĞğİIÜüÇç")).toBe("ssooggiiuucc");

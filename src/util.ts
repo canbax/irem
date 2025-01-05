@@ -94,7 +94,7 @@ export function enrichPlaceMatchesWithCountryName<T extends Place>(
     country: "",
     ...item,
   }));
-  const lang: SupportedLanguage = language ?? "en";
+  const lang: SupportedLanguage = language?.toLowerCase() ?? "en";
   for (const c of copy) {
     c.country =
       COUNTRY_TRANSLATIONS[c.countryCode]?.[lang] ??
@@ -238,6 +238,7 @@ export async function readLinesFromTSV(
   const indexFileHandle = await open(indexFilePath, "r");
 
   for (const lineNumber of lineNumbers) {
+    if (lineNumber < 1 || lineNumber > 350903) continue;
     const place = await readPlaceLineFromTSV(
       tsvFileHandle,
       indexFileHandle,
