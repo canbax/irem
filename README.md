@@ -2,7 +2,7 @@
 
 ![Build](https://github.com/canbax/irem/actions/workflows/test.yml/badge.svg) | ![Statements](https://img.shields.io/badge/statements-92.37%25-brightgreen.svg?style=flat)
 
-Search for any city in any language in Earth.
+Search for any place in any language in Earth.
 
 ## Usage
 
