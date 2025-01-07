@@ -1,5 +1,4 @@
 import {
-  isDefined,
   normalizeString,
   readGzippedJSON,
   TRIE_FILE,
@@ -15,48 +14,11 @@ interface EncodedTrieNode {
 }
 class TrieNode {
   children: Record<string, TrieNode>;
-  lineNumbers: number[]; // Using sorted array instead of Set
+  lineNumbers: Set<number>;
 
   constructor() {
     this.children = {};
-    this.lineNumbers = [];
-  }
-
-  addLineNumber(line: number) {
-    // Binary search to find insertion point
-    let left = 0;
-    let right = this.lineNumbers.length;
-
-    while (left < right) {
-      const mid = Math.floor((left + right) / 2);
-      if (isDefined(this.lineNumbers[mid]) && this.lineNumbers[mid] < line) {
-        left = mid + 1;
-      } else {
-        right = mid;
-      }
-    }
-
-    // Only insert if not already present
-    if (this.lineNumbers[left] !== line) {
-      this.lineNumbers.splice(left, 0, line);
-    }
-  }
-
-  hasLineNumber(line: number): boolean {
-    // Binary search to check existence
-    let left = 0;
-    let right = this.lineNumbers.length - 1;
-
-    while (left <= right) {
-      const mid = Math.floor((left + right) / 2);
-      if (this.lineNumbers[mid] === line) return true;
-      if (isDefined(this.lineNumbers[mid]) && this.lineNumbers[mid] < line) {
-        left = mid + 1;
-      } else {
-        right = mid - 1;
-      }
-    }
-    return false;
+    this.lineNumbers = new Set();
   }
 }
 
@@ -86,7 +48,7 @@ export class Trie {
       current = current.children[char] as TrieNode;
     }
 
-    current.addLineNumber(lineNumber);
+    current.lineNumbers.add(lineNumber);
   }
 
   findPrefix(query: string) {
@@ -191,7 +153,7 @@ export class Trie {
   buildTrieFromJson(encodedNode: EncodedTrieNode) {
     const node = new TrieNode();
     if (encodedNode.l) {
-      node.lineNumbers = encodedNode.l;
+      node.lineNumbers = new Set(encodedNode.l);
     }
     if (encodedNode.c) {
       for (const [char, childJson] of Object.entries(encodedNode.c)) {
@@ -232,7 +194,7 @@ export class Trie {
   static trieToJson(trie: Trie) {
     function nodeToJson(node: TrieNode) {
       const result: EncodedTrieNode = {};
-      if (node.lineNumbers.length > 0) {
+      if (node.lineNumbers.size > 0) {
         result.l = Array.from(node.lineNumbers);
       }
       if (Object.keys(node.children).length > 0) {

@@ -392,7 +392,7 @@ export function isDefined<T>(a: T | undefined | null): a is NonNullable<T> {
  * @param {Set<T>} setA
  * @param {Set<T>} setB
  */
-export function uniteSets<T>(setA: Set<T>, setB: Array<T>) {
+export function uniteSets<T>(setA: Set<T>, setB: Set<T>) {
   for (const elem of setB) {
     setA.add(elem);
   }
