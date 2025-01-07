@@ -1,5 +1,4 @@
 import {
-  isDefined,
   normalizeString,
   readGzippedJSON,
   TRIE_FILE,
@@ -13,58 +12,15 @@ interface EncodedTrieNode {
   c?: Record<string, EncodedTrieNode>;
   l?: number[];
 }
-class TrieNode {
-  children: Record<string, TrieNode>;
-  lineNumbers: number[]; // Using sorted array instead of Set
-
-  constructor() {
-    this.children = {};
-    this.lineNumbers = [];
-  }
-
-  addLineNumber(line: number) {
-    // Binary search to find insertion point
-    let left = 0;
-    let right = this.lineNumbers.length;
-
-    while (left < right) {
-      const mid = Math.floor((left + right) / 2);
-      if (isDefined(this.lineNumbers[mid]) && this.lineNumbers[mid] < line) {
-        left = mid + 1;
-      } else {
-        right = mid;
-      }
-    }
-
-    // Only insert if not already present
-    if (this.lineNumbers[left] !== line) {
-      this.lineNumbers.splice(left, 0, line);
-    }
-  }
-
-  hasLineNumber(line: number): boolean {
-    // Binary search to check existence
-    let left = 0;
-    let right = this.lineNumbers.length - 1;
-
-    while (left <= right) {
-      const mid = Math.floor((left + right) / 2);
-      if (this.lineNumbers[mid] === line) return true;
-      if (isDefined(this.lineNumbers[mid]) && this.lineNumbers[mid] < line) {
-        left = mid + 1;
-      } else {
-        right = mid - 1;
-      }
-    }
-    return false;
-  }
-}
-
 export class Trie {
-  root: TrieNode;
+  root: EncodedTrieNode;
+
+  createNode(): EncodedTrieNode {
+    return { c: {}, l: [] };
+  }
 
   constructor() {
-    this.root = new TrieNode(); // Initialize the root node
+    this.root = this.createNode(); // Initialize the root node
   }
 
   insert(word: string, lineNumber: number, isNormalize = false) {
@@ -80,13 +36,18 @@ export class Trie {
 
     for (let i = 0; i < w.length; i++) {
       const char = w[i] as string;
-      if (!current.children[char]) {
-        current.children[char] = new TrieNode();
+      if (!current.c) {
+        current.c = {};
       }
-      current = current.children[char] as TrieNode;
+      if (!current.c[char]) {
+        current.c[char] = this.createNode();
+      }
+      current = current.c[char] as EncodedTrieNode;
     }
 
-    current.addLineNumber(lineNumber);
+    if (!current.l?.includes(lineNumber)) {
+      current.l?.push(lineNumber);
+    }
   }
 
   findPrefix(query: string) {
@@ -96,13 +57,13 @@ export class Trie {
     // Iterate across the length of the string
     for (let c of query) {
       // Check if the node exist for the current character in the Trie.
-      if (!currentNode.children[c]) {
+      if (!currentNode?.c?.[c]) {
         // Given word as a prefix does not exist in Trie
         return null;
       }
 
       // Move the currentNode pointer to the already existing node for current character.
-      currentNode = currentNode.children[c] as TrieNode;
+      currentNode = currentNode.c[c] as EncodedTrieNode;
     }
 
     // Prefix exist in the Trie
@@ -118,13 +79,13 @@ export class Trie {
     for (i = 0; i < query.length; i++) {
       const c = query[i] as string;
       // Check if the node exist for the current character in the Trie.
-      if (!currentNode.children[c]) {
+      if (!currentNode?.c?.[c]) {
         // Given word as a prefix does not exist in Trie
         return { currentNode, i };
       }
 
       // Move the currentNode pointer to the already existing node for current character.
-      currentNode = currentNode.children[c] as TrieNode;
+      currentNode = currentNode.c[c] as EncodedTrieNode;
     }
 
     // Prefix exist in the Trie
@@ -154,14 +115,14 @@ export class Trie {
    * @param {number} [maxResultCount=10]
    */
   collectLineNumbersWithBFS(
-    currentNode: TrieNode,
+    currentNode: EncodedTrieNode,
     resultSet: Set<number>,
     maxResultCount: number = 10,
   ): void {
     if (resultSet.size > maxResultCount) return;
-    uniteSets(resultSet, currentNode.lineNumbers);
+    uniteSets(resultSet, currentNode?.l ?? []);
 
-    for (const [_, childNode] of Object.entries(currentNode.children)) {
+    for (const childNode of Object.values(currentNode?.c ?? {})) {
       this.collectLineNumbersWithBFS(childNode, resultSet, maxResultCount);
     }
   }
@@ -170,9 +131,9 @@ export class Trie {
     const searchTerm = query.trim().toLowerCase();
     if (searchTerm.length < 1) return null;
     const rawSearched = this.findPrefix(searchTerm);
-    if (rawSearched) return Array.from(rawSearched.lineNumbers);
+    if (rawSearched) return Array.from(rawSearched?.l ?? []);
     const normalizedSearch = this.findPrefix(normalizeString(searchTerm));
-    if (normalizedSearch) return Array.from(normalizedSearch.lineNumbers);
+    if (normalizedSearch) return Array.from(normalizedSearch?.l ?? []);
     return null;
   }
 
@@ -183,22 +144,8 @@ export class Trie {
    * @param {string} filePath
    * @returns {*}
    */
-  async loadFromJson(filePath: string) {
-    const trieJSON = await readGzippedJSON(filePath);
-    this.root = this.buildTrieFromJson(trieJSON);
-  }
-
-  buildTrieFromJson(encodedNode: EncodedTrieNode) {
-    const node = new TrieNode();
-    if (encodedNode.l) {
-      node.lineNumbers = encodedNode.l;
-    }
-    if (encodedNode.c) {
-      for (const [char, childJson] of Object.entries(encodedNode.c)) {
-        node.children[char] = this.buildTrieFromJson(childJson);
-      }
-    }
-    return node;
+  async loadFromJson(filePath: string): Promise<void> {
+    this.root = await readGzippedJSON(filePath);
   }
 
   static buildTrieFromTSV(tsvFilePath: string): Trie {
@@ -230,14 +177,14 @@ export class Trie {
   }
 
   static trieToJson(trie: Trie) {
-    function nodeToJson(node: TrieNode) {
+    function nodeToJson(node: EncodedTrieNode) {
       const result: EncodedTrieNode = {};
-      if (node.lineNumbers.length > 0) {
-        result.l = Array.from(node.lineNumbers);
+      if ((node?.l?.length ?? 0) > 0) {
+        result.l = Array.from(node?.l ?? []);
       }
-      if (Object.keys(node.children).length > 0) {
+      if (Object.keys(node?.c ?? {}).length > 0) {
         result.c = {};
-        for (const [char, childNode] of Object.entries(node.children)) {
+        for (const [char, childNode] of Object.entries(node?.c ?? {})) {
           result.c[char] = nodeToJson(childNode);
         }
       }
