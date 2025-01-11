@@ -54,3 +54,6 @@ Returns a `PlaceWithCountry` object from provided id. Id must exist in `db.tsv` 
 ```
 async function getPlaceById(placeId: number, language?: SupportedLanguage)
 ```
+
+
+Built for [vakit](https://vakit.vercel.app/) 
