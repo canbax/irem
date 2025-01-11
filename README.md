@@ -22,6 +22,10 @@ Works only in nodejs environment. Stores data in the folder named `data` in TSV 
 
 [API usage example](recording.mp4)
 
+<p align="center">
+    <img src="recording.gif" alt="Logo" width="750"/>
+</p>
+
 ### Use [npm](https://www.npmjs.com/package/irem)
 
 Run command `npm i irem`
