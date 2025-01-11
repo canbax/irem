@@ -4,9 +4,23 @@
 
 Search for any place in any language in Earth.
 
+<p align="center">
+    <img src="irem-icon.png" alt="Logo" width="200"/>
+</p>
+
 ## Usage
 
+### Use API
+
+[Search for "Keçi" in Turkish](https://vakit.vercel.app/api/searchPlaces?q=Keçi)
+
+[Search for "随机" in English (default)](https://vakit.vercel.app/api/searchPlaces?q=随机)
+
+[Nearby places around Ankara,Turkiye](https://vakit.vercel.app/api/nearByPlaces?lat=40.0006929&lng=32.8519762&lang=tr)
+
 Works only in nodejs environment. Stores data in the folder named `data` in TSV file format or gzipped format or in binary format.
+
+[API usage example](recording.mp4)
 
 ### Use [npm](https://www.npmjs.com/package/irem)
 
@@ -55,5 +69,4 @@ Returns a `PlaceWithCountry` object from provided id. Id must exist in `db.tsv` 
 async function getPlaceById(placeId: number, language?: SupportedLanguage)
 ```
 
-
-Built for [vakit](https://vakit.vercel.app/) 
+Built for [vakit](https://vakit.vercel.app/)
