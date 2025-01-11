@@ -18,6 +18,8 @@ Search for any place in any language in earth.
 
 [Nearby places around Ankara,Turkiye](https://vakit.vercel.app/api/nearByPlaces?lat=40.0006929&lng=32.8519762&lang=tr)
 
+[Get place by id](https://vakit.vercel.app/api/placeById?id=311034)
+
 Works only in nodejs environment. Stores data in the folder named `data` in TSV file format or gzipped format or in binary format.
 
 <p align="center">
