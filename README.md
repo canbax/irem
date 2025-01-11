@@ -20,8 +20,6 @@ Search for any place in any language in Earth.
 
 Works only in nodejs environment. Stores data in the folder named `data` in TSV file format or gzipped format or in binary format.
 
-[API usage example](recording.mp4)
-
 <p align="center">
     <img src="recording.gif" alt="Logo" width="750"/>
 </p>
