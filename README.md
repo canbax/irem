@@ -12,7 +12,7 @@ Search for any place in any language in earth.
 
 ### Use API
 
-[Search for "Keçi" in Turkish](https://vakit.vercel.app/api/searchPlaces?q=Keçi?lang=tr)
+[Search for "Keçi" in Turkish](https://vakit.vercel.app/api/searchPlaces?q=Keçi&lang=tr)
 
 [Search for "随机" in English (default)](https://vakit.vercel.app/api/searchPlaces?q=随机)
 
