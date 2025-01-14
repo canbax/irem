@@ -8,13 +8,36 @@ Search for any place in any language in earth.
     <img src="irem-icon.png" alt="Logo" width="200"/>
 </p>
 
+## Irem: A Multilingual Place Search API and Database for Developers
+
+Irem is a Node.js library that integrates a comprehensive, well-structured geospatial database with an efficient querying API. Designed to simplify the integration of global place search functionality into applications, Irem supports multilingual searches, making it a versatile choice for modern, internationalized projects.
+
+- **Extensive Geospatial Data:**  
+  Access a meticulously curated database of over 350,000 entries, including cities, towns, regions, and other inhabited places worldwide, complete with GPS coordinates and alternative names.
+
+- **Multilingual Search Support:**  
+  Query place names in multiple languages, enabling seamless internationalization.
+
+- **Integrated Querying Layer:**  
+  Optimized API for performing precise and efficient place searches directly in your application.
+
+- **Developer-Focused:**  
+  Provides a straightforward and robust interface designed to minimize complexity and maximize performance.
+
+- **Scalable and Flexible:**  
+  Ideal for use cases ranging from mapping services and travel apps to e-commerce localization and geospatial analytics.
+ 
 ## Usage
 
-### Use API
+### Use [npm](https://www.npmjs.com/package/irem)
+
+Run command `npm i irem`
+
+### Use free API
 
 [Search for "Keçi" in Turkish](https://vakit.vercel.app/api/searchPlaces?q=Keçi&lang=tr)
 
-[Search for "随机" in English (default)](https://vakit.vercel.app/api/searchPlaces?q=随机)
+[Search for "伊斯坦布尔" (Istanbul)](https://vakit.vercel.app/api/searchPlaces?q=%E4%BC%8A%E6%96%AF%E5%9D%A6%E5%B8%83%E5%B0%94)
 
 [Nearby places around Ankara,Turkiye](https://vakit.vercel.app/api/nearByPlaces?lat=40.0006929&lng=32.8519762&lang=tr)
 
@@ -26,15 +49,11 @@ Works only in nodejs environment. Stores data in the folder named `data` in TSV 
     <img src="recording.gif" alt="Logo" width="750"/>
 </p>
 
-### Use [npm](https://www.npmjs.com/package/irem)
-
-Run command `npm i irem`
+## Documentation
 
 ### import ESM module
 
 `import { getPlaceSuggestionsByText, getNearbyPlaces, getPlaceById } from 'irem';`
-
-## Documentation
 
 ### function getPlaceSuggestionsByText
 
