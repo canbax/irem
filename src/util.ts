@@ -295,8 +295,8 @@ export async function gridSearchByGPS(
   const grid = await readGzippedJSON(gridFile);
 
   // Check the current cell and its neighbors
-  for (let i = latIndex - 1; i <= latIndex + 1; i++) {
-    for (let j = lonIndex - 1; j <= lonIndex + 1; j++) {
+  for (let i = latIndex - 3; i <= latIndex + 3; i++) {
+    for (let j = lonIndex - 3; j <= lonIndex + 3; j++) {
       const cellKey = `${i},${j}`;
       if (grid[cellKey]) {
         for (const settlement of grid[cellKey]) {

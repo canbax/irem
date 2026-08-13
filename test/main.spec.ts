@@ -71,6 +71,15 @@ describe("list places based on approximation to GPS", () => {
     const results = await getNearbyPlaces(0, 0);
     expect(results).toHaveLength(0);
   });
+
+  it("should return places around Türkler, Alanya, Antalya", async () => {
+    const results = await getNearbyPlaces(
+      36.60640823985788,
+      31.778476826200723,
+    );
+    expect(results).toHaveLength(3);
+    expect(results[0].name).toBe("Alanya");
+  });
 });
 
 describe("get a place by id (id is the line number in TSV file)", () => {

@@ -1,6 +1,6 @@
-# irem [(Türkçe)](BENİOKU.md) 
+# irem [(Türkçe)](BENİOKU.md)
 
-![Format, Test and Build](https://github.com/canbax/irem/actions/workflows/test.yml/badge.svg) | ![Statements](https://img.shields.io/badge/statements-92.37%25-brightgreen.svg?style=flat)
+![Format, Test and Build](https://github.com/canbax/irem/actions/workflows/test.yml/badge.svg) | ![Statements](https://img.shields.io/badge/statements-91.8%25-brightgreen.svg?style=flat)
 
 Search for any place in any language in earth.
 
@@ -26,7 +26,7 @@ Irem is a Node.js library that integrates a comprehensive, well-structured geosp
 
 - **Scalable and Flexible:**  
   Ideal for use cases ranging from mapping services and travel apps to e-commerce localization and geospatial analytics.
- 
+
 ## Usage
 
 ### Use [npm](https://www.npmjs.com/package/irem)
